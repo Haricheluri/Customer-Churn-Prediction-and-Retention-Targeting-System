@@ -66,3 +66,5 @@ Technical Notes
 - Do not assume external APIs or live systems; simulate tool calls against local files.
 - When using GenAI components, document prompts, retrieval configuration, and safety guardrails explicitly.
 - Preserve reproducibility: set random seeds, document train/validation splits, and version any embedding models used.
+
+
