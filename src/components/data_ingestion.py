@@ -4,6 +4,8 @@ from src.logger import logging
 from src.exception import CustomException
 import pandas as pd
 from dataclasses import dataclass
+
+from src.components.data_transformation import DataTransformation
 @dataclass
 class DataIngestionConfig:
     merged_data_path: str=os.path.join('artifacts',"data.csv")
@@ -173,9 +175,8 @@ class DataIngestion:
             
             logging.info("Data set saved")
 
-            return (
-                self.ingestionconfig.merged_data_path,
-            )
+            return self.ingestionconfig.merged_data_path
+
         except Exception as e:
             raise CustomException(e,sys)
     def initiate_data_ingestion(self):
@@ -185,7 +186,7 @@ class DataIngestion:
             integrated_df=self.merge_datasets(datasets)
             merge_path=self.save_clean_data(integrated_df)
             logging.info("Data Ingestion Completed Successfully")
-            return(merge_path)
+            return merge_path
             
         except Exception as e:
             raise CustomException(e,sys)
@@ -194,4 +195,8 @@ class DataIngestion:
 if __name__=='__main__':
     obj=DataIngestion()
     merge_path=obj.initiate_data_ingestion()
-    print(merge_path)
+
+    data_transformation=DataTransformation()
+    train_arr,test_arr,_=data_transformation.initiate_transformation(merge_path)
+
+    

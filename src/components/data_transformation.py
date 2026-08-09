@@ -10,6 +10,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder,StandardScaler
 import numpy as np
+from src.utils import save_obj
 @dataclass
 class DataTransformationConfig:
     train_data_path=os.path.join("artifacts",'train.csv')
@@ -212,14 +213,14 @@ class DataTransformation:
             test_arr=np.c_[input_test_features,np.array(target_test_feature)]
             logging.info(f"Saved preprocessing object.")
 
-            saveobj(
-                file_path=self.data_transformation_config.preprocessor_obj_file_path,
+            save_obj(
+                file_path=self.transformationConfig.preprocessor_obj_file_path,
                 obj=preprocessing_obj
                 )
             return(
                     train_arr,
                     test_arr,
-                    self.data_transformation_config.preprocessor_obj_file_path,
+                    self.transformationConfig.preprocessor_obj_file_path,
                 )
 
         except Exception as e:
