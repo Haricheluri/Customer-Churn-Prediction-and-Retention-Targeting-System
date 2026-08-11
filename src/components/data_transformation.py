@@ -69,6 +69,8 @@ class DataTransformation:
             ).astype(int)
             logging.info('created features F score,R score,M score')
 
+            
+
 
             merge_df=merge_df.merge(
                 customer_rfm,
@@ -85,18 +87,21 @@ class DataTransformation:
         except Exception as e:
             raise CustomException(e,sys)
             
-    def train_test_split_data(self):
+    def train_test_split_data(self,path):
         try:
             logging.info("spliting data into train test")
-            df=pd.read_csv(self.transformationConfig.featured_ds_path)
+            df=pd.read_csv(path)
             #drops customer id from feature data set but not inplace
-            df=df.drop('customer_id',axis=1)
-            train_set,test_set=train_test_split(df,test_size=0.2,stratify=df['churned'])
+            X=df.drop(columns=['customer_id','churned'])
+            y=df['churned']
+            X_train,X_test,y_train,y_test=train_test_split(X,y,stratify=y,test_size=0.2,random_state=42)
+            train_set=pd.concat([X_train,y_train],axis=1)
+            test_set=pd.concat([X_test,y_test],axis=1)
             train_set.to_csv(self.transformationConfig.train_data_path,index=False)
             test_set.to_csv(self.transformationConfig.test_data_path,index=False)
             logging.info('Splitted the dataset')
 
-            return (self.transformationConfig.train_data_path,self.transformationConfig.test_data_path)
+            return (X_train,X_test,y_train ,y_test)
 
         except Exception as e:
             raise CustomException(e,sys)
@@ -105,7 +110,6 @@ class DataTransformation:
 
         try:
                 logging.info('data transfomer obj started.')
-                df=pd.read_csv(self.transformationConfig.featured_ds_path)
                 median_columns = [
                     "age",
                     "household_size",
@@ -186,31 +190,14 @@ class DataTransformation:
     def initiate_transformation(self,merge_path):
         try:
             feature_ds_path=self.feature_Rfm(merge_path)
-            train_path,test_path=self.train_test_split_data()
-
-            #Reading train and test
-            train_data=pd.read_csv(train_path)
-            test_data=pd.read_csv(test_path)
-
-            logging.info("Read train and test data completed")
+            X_train,X_test,y_train,y_test=self.train_test_split_data(feature_ds_path)
             logging.info("Obtaining preprocessing object")
 
             preprocessing_obj=self.get_data_transformer_obj()
 
-            target_column='churned'
+            X_train=preprocessing_obj.fit_transform(X_train)
+            X_test=preprocessing_obj.transform(X_test)
 
-            input_train_features=train_data.drop(columns=[target_column])
-            target_train_feature=train_data[target_column]
-
-            input_test_features=test_data.drop(columns=[target_column])
-            target_test_feature=test_data[target_column]
-
-            input_train_features=preprocessing_obj.fit_transform(input_train_features)
-            input_test_features=preprocessing_obj.transform(input_test_features)
-
-
-            train_arr=np.c_[input_train_features,np.array(target_train_feature)]
-            test_arr=np.c_[input_test_features,np.array(target_test_feature)]
             logging.info(f"Saved preprocessing object.")
 
             save_obj(
@@ -218,8 +205,10 @@ class DataTransformation:
                 obj=preprocessing_obj
                 )
             return(
-                    train_arr,
-                    test_arr,
+                    X_train,
+                    X_test,
+                    y_train,
+                    y_test,
                     self.transformationConfig.preprocessor_obj_file_path,
                 )
 

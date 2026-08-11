@@ -49,15 +49,15 @@ class DataIngestion:
                 if df.duplicated().sum()>0:
                     duplicate_ds.append(name)
 
-            if missing_ds:
-                print("These datasets contain Null values",missing_ds)
-            else:
-                print("No Null values")
+            # if missing_ds:
+            #     print("These datasets contain Null values",missing_ds)
+            # else:
+            #     print("No Null values")
 
-            if duplicate_ds:
-                print("The datasets conatain Duplicated rows",duplicate_ds)
-            else:
-                print("No Duplicated Rows")
+            # if duplicate_ds:
+            #     print("The datasets conatain Duplicated rows",duplicate_ds)
+            # else:
+            #     print("No Duplicated Rows")
 
             logging.info("Null and Duplicate Analysis completed.")
             logging.info("Handling missing values..")
@@ -71,7 +71,7 @@ class DataIngestion:
                         .set_index("state")['country']
                     )
                     df["country"] = df["country"].fillna(df["state"].map(state_country_map))
-                    print("Filled missing values in 'country' using 'state' mapping.")
+                    # print("Filled missing values in 'country' using 'state' mapping.")
                 #updates the dataset dictionary
                 datasets[name] = df
             logging.info("Missing value handling completed.")
@@ -197,6 +197,8 @@ if __name__=='__main__':
     merge_path=obj.initiate_data_ingestion()
 
     data_transformation=DataTransformation()
-    train_arr,test_arr,_=data_transformation.initiate_transformation(merge_path)
+    X_train,X_test,y_train,y_test,_=data_transformation.initiate_transformation(merge_path)
+    print(pd.DataFrame(X_train).isna().sum().sum())
+    print(pd.DataFrame(X_test).isna().sum().sum())
 
     
