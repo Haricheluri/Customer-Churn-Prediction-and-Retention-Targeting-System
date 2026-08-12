@@ -6,6 +6,7 @@ import pandas as pd
 from dataclasses import dataclass
 
 from src.components.data_transformation import DataTransformation
+from src.components.model_trainer import ModelTrainer
 @dataclass
 class DataIngestionConfig:
     merged_data_path: str=os.path.join('artifacts',"data.csv")
@@ -125,7 +126,6 @@ class DataIngestion:
                     "tenure_months_x": "tenure_months",
                     "contract_type_x": "contract_type",
                     "payment_method_x": "payment_method",
-                    "nps_score_x": "nps_score"
                  },inplace=True)
             
             columns_to_drop = [
@@ -133,7 +133,6 @@ class DataIngestion:
                 "tenure_months_y",
                 "contract_type_y",
                 "payment_method_y",
-                "nps_score_y",
                 # Administrative Columns
                 "account_manager_x",
                 "account_manager_y",
@@ -198,7 +197,9 @@ if __name__=='__main__':
 
     data_transformation=DataTransformation()
     X_train,X_test,y_train,y_test,_=data_transformation.initiate_transformation(merge_path)
-    print(pd.DataFrame(X_train).isna().sum().sum())
-    print(pd.DataFrame(X_test).isna().sum().sum())
+    model_trainer=ModelTrainer()
+    model_trainer.initiate_model_trainer( X_train,X_test,y_train,y_test)
+   
+   
 
     

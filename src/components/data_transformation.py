@@ -109,57 +109,16 @@ class DataTransformation:
     def get_data_transformer_obj(self):
 
         try:
+                df=pd.read_csv(self.transformationConfig.featured_ds_path)
                 logging.info('data transfomer obj started.')
-                median_columns = [
-                    "age",
-                    "household_size",
-                    "lifetime_value",
-                    "loyalty_points",
-                    "monthly_recurring_revenue",
-                    "annual_contract_value"
-                ]
-
-                cat_cols = [
-                    "contract_type",
-                    "payment_method",
-                    "gender",
-                    "marital_status",
-                    "segment",
-                    "preferred_channel",
-                    "preferred_language",
-                    "account_status",
-                    "referral_source",
-                    "engagement_tier",
-                    "billing_cycle",
-                    "invoice_delivery"
-                ]
-                zero_columns = [
-                    "email_opt_in",
-                    "sms_opt_in",
-                    "autopay_enabled",
-                    "paperless_billing",
-                    "late_payments_12m",
-                    "price_increase_last_year",
-                    "discount_pct",
-                    "payment_failures_90d",
-                    "tax_exempt",
-                    "frequency",
-                    "monetary",
-                    "R_score",
-                    "F_score",
-                    "M_score"
-                ]
-                num_median_pipeline=Pipeline(
+                num_cols = df.select_dtypes(include=["int64", "float64"]).columns.to_list()
+                num_cols.remove('churned')
+                cat_cols = df.select_dtypes(include=["object", "category"]).columns.to_list()
+                cat_cols.remove('customer_id')
+                num_pipeline=Pipeline(
                      steps=[
                           ("imputer",SimpleImputer(strategy='median')),
                           ("scaler",StandardScaler())
-                     ]
-                )
-
-                num_zero_pipeline=Pipeline(
-                     steps=[
-                          ('imputer',SimpleImputer(strategy='constant',fill_value=0)),
-                          ('scaler',StandardScaler())
                      ]
                 )
 
@@ -169,16 +128,10 @@ class DataTransformation:
                           ('encoder',OneHotEncoder(handle_unknown='ignore'))
                      ]
                 )
-                logging.info( f"Median numerical columns: {median_columns}")
-                logging.info( f"Zero numerical columns: {zero_columns}")
-                logging.info( f"categorical columns: {cat_cols}")
-
-
 
                 preprocessor=ColumnTransformer(
                      transformers=[
-                          ('num_median',num_median_pipeline,median_columns),
-                          ('num_zero',num_zero_pipeline,zero_columns),
+                          ('num_median',num_pipeline,num_cols),
                           ('cat',cat_pipeline,cat_cols)
                      ]
                 )
