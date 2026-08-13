@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customer Churn Prediction</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 32px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 28px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            margin-top: 0;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e5e7eb;
+            color: #2563eb;
+            font-size: 22px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px 25px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 7px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 15px;
+            background: #ffffff;
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Remove number spinner buttons */
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .submit-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 14px 45px;
+            border: none;
+            border-radius: 7px;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .result {
+            text-align: center;
+            padding: 22px;
+            margin-top: 25px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                margin: 20px auto;
+                padding: 15px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Customer Churn Prediction</h1>
+
+    <form action="/predict" method="POST">
+
+        <!-- Customer Information -->
+        <div class="card">
+
+            <h2 class="section-title">Customer Information</h2>
+
+            <div class="grid">
+
+                <div class="field">
+                    <label for="complaint_count">Complaint Count</label>
+                    <input
+                        type="number"
+                        id="complaint_count"
+                        name="complaint_count"
+                        placeholder="Enter complaint count"
+                        title="Number of customer complaints"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="satisfaction_score">Satisfaction Score</label>
+                    <input
+                        type="number"
+                        id="satisfaction_score"
+                        name="satisfaction_score"
+                        placeholder="Enter satisfaction score"
+                        title="Customer satisfaction score"
+                        step="any"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="monthly_spend">Monthly Spend</label>
+                    <input
+                        type="number"
+                        id="monthly_spend"
+                        name="monthly_spend"
+                        placeholder="Enter monthly spend"
+                        title="Customer monthly spend"
+                        step="any"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="total_spend">Total Spend</label>
+                    <input
+                        type="number"
+                        id="total_spend"
+                        name="total_spend"
+                        placeholder="Enter total spend"
+                        title="Customer total spend"
+                        step="any"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="avg_order_value">Average Order Value</label>
+                    <input
+                        type="number"
+                        id="avg_order_value"
+                        name="avg_order_value"
+                        placeholder="Enter average order value"
+                        title="Average value of customer orders"
+                        step="any"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="tenure_months">Tenure Months</label>
+                    <input
+                        type="number"
+                        id="tenure_months"
+                        name="tenure_months"
+                        placeholder="Enter tenure in months"
+                        title="Customer tenure in months"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="contract_type">Contract Type</label>
+
+                    <select
+                        id="contract_type"
+                        name="contract_type"
+                        title="Select customer contract type"
+                        required
+                    >
+                        <option value="">Select</option>
+                        <option value="Monthly">Monthly</option>
+                        <option value="Quarterly">Quarterly</option>
+                        <option value="Annual">Annual</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="payment_method">Payment Method</label>
+
+                    <select
+                        id="payment_method"
+                        name="payment_method"
+                        title="Select customer payment method"
+                        required
+                    >
+                        <option value="">Select</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="UPI">UPI</option>
+                        <option value="PayPal">PayPal</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="autopay">Autopay</label>
+
+                    <select
+                        id="autopay"
+                        name="autopay"
+                        title="Select autopay status"
+                        required
+                    >
+                        <option value="">Select</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="login_frequency_30d">
+                        Login Frequency (30 Days)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="login_frequency_30d"
+                        name="login_frequency_30d"
+                        placeholder="Enter login frequency"
+                        title="Number of logins during the last 30 days"
+                        min="0"
+                        required
+                    >
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Engagement & RFM -->
+        <div class="card">
+
+            <h2 class="section-title">Engagement & RFM</h2>
+
+            <div class="grid">
+
+                <div class="field">
+                    <label for="recency_days">Recency Days</label>
+
+                    <input
+                        type="number"
+                        id="recency_days"
+                        name="recency_days"
+                        placeholder="Enter recency days"
+                        title="Days since the customer's last order"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="frequency">Frequency</label>
+
+                    <input
+                        type="number"
+                        id="frequency"
+                        name="frequency"
+                        placeholder="Enter purchase frequency"
+                        title="Number of customer orders"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="cart_abandonment_rate">
+                        Cart Abandonment Rate
+                    </label>
+
+                    <input
+                        type="number"
+                        id="cart_abandonment_rate"
+                        name="cart_abandonment_rate"
+                        placeholder="Enter cart abandonment rate"
+                        title="Customer cart abandonment rate"
+                        step="any"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="engagement_tier">
+                        Engagement Tier
+                    </label>
+
+                    <select
+                        id="engagement_tier"
+                        name="engagement_tier"
+                        title="Select engagement tier"
+                        required
+                    >
+                        <option value="">Select</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Payment & Billing -->
+        <div class="card">
+
+            <h2 class="section-title">Payment & Billing</h2>
+
+            <div class="grid">
+
+                <div class="field">
+                    <label for="late_payments_12m">
+                        Late Payments (12 Months)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="late_payments_12m"
+                        name="late_payments_12m"
+                        placeholder="Enter late payments"
+                        title="Late payments during the last 12 months"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="payment_failures_90d">
+                        Payment Failures (90 Days)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="payment_failures_90d"
+                        name="payment_failures_90d"
+                        placeholder="Enter payment failures"
+                        title="Payment failures during the last 90 days"
+                        min="0"
+                        required
+                    >
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Submit -->
+        <div class="submit-container">
+
+            <button type="submit">
+                Predict Churn
+            </button>
+
+        </div>
+
+    </form>
+
+
+    <!-- Prediction Result -->
+    {% if results is defined %}
+
+        <div class="result">
+
+            {% if results == 1 %}
+                Customer is likely to churn.
+            {% else %}
+                Customer is unlikely to churn.
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<script>
+
+    const formFields = Array.from(
+        document.querySelectorAll(
+            'form input:not([type="hidden"]), form select, form button'
+        )
+    );
+
+    formFields.forEach((field, index) => {
+
+        field.addEventListener("keydown", function (event) {
+
+            if (event.key === "ArrowDown") {
+
+                event.preventDefault();
+
+                if (index < formFields.length - 1) {
+                    formFields[index + 1].focus();
+                }
+            }
+
+            if (event.key === "ArrowUp") {
+
+                event.preventDefault();
+
+                if (index > 0) {
+                    formFields[index - 1].focus();
+                }
+            }
+
+        });
+
+    });
+
+</script>
+
+</body>
+
+</html>

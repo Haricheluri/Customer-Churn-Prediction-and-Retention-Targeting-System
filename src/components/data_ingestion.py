@@ -166,7 +166,10 @@ class DataIngestion:
                 "city",
                 "occupation",
                 "country",
-                "state"
+                "state",
+
+                "retention_offer_sent",
+                'offer_accepted'
             ]
             df.drop(columns=columns_to_drop, inplace=True)
             os.makedirs('artifacts',exist_ok=True)
@@ -198,8 +201,8 @@ if __name__=='__main__':
     data_transformation=DataTransformation()
     X_train,X_test,y_train,y_test,_=data_transformation.initiate_transformation(merge_path)
     model_trainer=ModelTrainer()
-    model_trainer.initiate_model_trainer( X_train,X_test,y_train,y_test)
-   
+    resuts=model_trainer.initiate_model_trainer( X_train,X_test,y_train,y_test)
+    print(resuts)
    
 
     

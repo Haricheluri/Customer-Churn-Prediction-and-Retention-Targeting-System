@@ -11,6 +11,26 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder,StandardScaler
 import numpy as np
 from src.utils import save_obj
+
+
+CHURN_FEATURES = [
+                    "complaint_count",
+                    "satisfaction_score",
+                    "monthly_spend",
+                    "total_spend",
+                    "avg_order_value",
+                    "tenure_months",
+                    "contract_type",
+                    "payment_method",
+                    "autopay",
+                    "login_frequency_30d",
+                    "recency_days",
+                    "frequency",
+                    "cart_abandonment_rate",
+                    "engagement_tier",
+                    "late_payments_12m",
+                    "payment_failures_90d"
+                ]
 @dataclass
 class DataTransformationConfig:
     train_data_path=os.path.join("artifacts",'train.csv')
@@ -91,8 +111,8 @@ class DataTransformation:
         try:
             logging.info("spliting data into train test")
             df=pd.read_csv(path)
-            #drops customer id from feature data set but not inplace
-            X=df.drop(columns=['customer_id','churned'])
+            
+            X=df[CHURN_FEATURES]
             y=df['churned']
             X_train,X_test,y_train,y_test=train_test_split(X,y,stratify=y,test_size=0.2,random_state=42)
             train_set=pd.concat([X_train,y_train],axis=1)
@@ -110,11 +130,10 @@ class DataTransformation:
 
         try:
                 df=pd.read_csv(self.transformationConfig.featured_ds_path)
+                df=df[CHURN_FEATURES]
                 logging.info('data transfomer obj started.')
                 num_cols = df.select_dtypes(include=["int64", "float64"]).columns.to_list()
-                num_cols.remove('churned')
                 cat_cols = df.select_dtypes(include=["object", "category"]).columns.to_list()
-                cat_cols.remove('customer_id')
                 num_pipeline=Pipeline(
                      steps=[
                           ("imputer",SimpleImputer(strategy='median')),
